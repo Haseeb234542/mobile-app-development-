@@ -1,0 +1,87 @@
+import 'package:flutter/material.dart';
+
+void main() {
+  runApp(MyApp());
+}
+
+class MyApp extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      debugShowCheckedModeBanner: false,
+      home: MaximumBid(),
+    );
+  }
+}
+
+class MaximumBid extends StatefulWidget {
+  @override
+  _MaximumBidState createState() => _MaximumBidState();
+}
+
+class _MaximumBidState extends State<MaximumBid> {
+  int currentBid = 100; // starting bid
+
+  void increaseBid() {
+    setState(() {
+      currentBid += 50; // increase by $50
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text("Bidding Page"),
+        centerTitle: true,
+      ),
+      body: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            const Text(
+              "Product: Flutter T-Shirt",
+              style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+            ),
+            const SizedBox(height: 20),
+            Text(
+              "Current Maximum Bid: \$${currentBid}",
+              style: const TextStyle(fontSize: 20, color: Colors.blue),
+            ),
+            const SizedBox(height: 20),
+            ElevatedButton(
+              onPressed: increaseBid,
+              child: const Text("Increase Bid by \$50"),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+
+
+
+
+
+
+
+
+Task 2
+
+
+
+import 'dart:io';
+
+void main() {
+  stdout.write("Enter a number (n): ");
+  int n = int.parse(stdin.readLineSync()!);
+
+  for (int i = 1; i <= n; i++) {
+    for (int j = 1; j <= i; j++) {
+      stdout.write("$j ");
+    }
+    print("");
+  }
+}
