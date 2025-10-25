@@ -1,0 +1,319 @@
+import 'package:flutter/material.dart';
+
+void main() {
+  runApp(HostelManagementApp());
+}
+
+class HostelManagementApp extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      title: 'Hostel Management App',
+      debugShowCheckedModeBanner: false,
+      theme: ThemeData(
+        primarySwatch: Colors.indigo,
+      ),
+      home: DashboardScreen(),
+    );
+  }
+}
+
+// =================== DASHBOARD SCREEN ===================
+class DashboardScreen extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: Colors.indigo.shade50,
+      appBar: AppBar(
+        title: const Text('Hostel Management'),
+        centerTitle: true,
+        backgroundColor: Colors.indigo,
+      ),
+      body: Padding(
+        padding: const EdgeInsets.all(24.0),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            ElevatedButton.icon(
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.indigo,
+                minimumSize: const Size(double.infinity, 55),
+              ),
+              icon: const Icon(Icons.add_home_work, color: Colors.white),
+              label: const Text('Add Student',
+                  style: TextStyle(color: Colors.white, fontSize: 18)),
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (_) => AddStudentScreen()),
+                );
+              },
+            ),
+            const SizedBox(height: 20),
+            ElevatedButton.icon(
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.indigo.shade700,
+                minimumSize: const Size(double.infinity, 55),
+              ),
+              icon: const Icon(Icons.list, color: Colors.white),
+              label: const Text('View Students',
+                  style: TextStyle(color: Colors.white, fontSize: 18)),
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (_) => ViewStudentsScreen()),
+                );
+              },
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+// =================== ADD STUDENT SCREEN ===================
+class AddStudentScreen extends StatefulWidget {
+  @override
+  State<AddStudentScreen> createState() => _AddStudentScreenState();
+}
+
+class _AddStudentScreenState extends State<AddStudentScreen> {
+  final TextEditingController nameController = TextEditingController();
+  final TextEditingController roomController = TextEditingController();
+  final TextEditingController monthsController = TextEditingController();
+  final TextEditingController feeController = TextEditingController();
+
+  String? resultText;
+  double? totalFee;
+
+  void calculateTotalFee() {
+    final months = int.tryParse(monthsController.text);
+    final feePerMonth = double.tryParse(feeController.text);
+
+    if (months == null || feePerMonth == null || months <= 0 || feePerMonth <= 0) {
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+          content: Text("Please enter valid month and fee!"),
+          backgroundColor: Colors.redAccent));
+      return;
+    }
+
+    setState(() {
+      totalFee = months * feePerMonth;
+      resultText = "Total Hostel Fee: Rs. ${totalFee!.toStringAsFixed(2)}";
+    });
+  }
+
+  void saveStudent() {
+    if (nameController.text.isEmpty || roomController.text.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+          content: Text("Please fill all student details!"),
+          backgroundColor: Colors.orangeAccent));
+      return;
+    }
+
+    if (totalFee == null) {
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+          content: Text("Please calculate total fee first!"),
+          backgroundColor: Colors.orangeAccent));
+      return;
+    }
+
+    setState(() {
+      HostelData.students.add(Student(
+        nameController.text,
+        roomController.text,
+        int.parse(monthsController.text),
+        double.parse(feeController.text),
+        totalFee!,
+      ));
+
+      // clear fields
+      nameController.clear();
+      roomController.clear();
+      monthsController.clear();
+      feeController.clear();
+      totalFee = null;
+      resultText = null;
+    });
+
+    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+      content: Text("Student record added successfully ✅"),
+      backgroundColor: Colors.green,
+    ));
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Add Student'),
+        backgroundColor: Colors.indigo,
+      ),
+      body: SingleChildScrollView(
+        padding: const EdgeInsets.all(20),
+        child: Column(
+          children: [
+            TextField(
+              controller: nameController,
+              decoration: const InputDecoration(
+                labelText: 'Student Name',
+                border: OutlineInputBorder(),
+              ),
+            ),
+            const SizedBox(height: 12),
+            TextField(
+              controller: roomController,
+              decoration: const InputDecoration(
+                labelText: 'Room Number',
+                border: OutlineInputBorder(),
+              ),
+            ),
+            const SizedBox(height: 12),
+            TextField(
+              controller: monthsController,
+              keyboardType: TextInputType.number,
+              decoration: const InputDecoration(
+                labelText: 'Number of Months',
+                border: OutlineInputBorder(),
+              ),
+            ),
+            const SizedBox(height: 12),
+            TextField(
+              controller: feeController,
+              keyboardType: TextInputType.number,
+              decoration: const InputDecoration(
+                labelText: 'Fee per Month (Rs)',
+                border: OutlineInputBorder(),
+              ),
+            ),
+            const SizedBox(height: 20),
+            if (resultText != null)
+              Card(
+                color: Colors.indigo.shade100,
+                child: Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: Text(resultText!,
+                      style:
+                          const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+                ),
+              ),
+            const SizedBox(height: 20),
+            Row(
+              children: [
+                Expanded(
+                  child: ElevatedButton(
+                    onPressed: calculateTotalFee,
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.indigo,
+                      minimumSize: const Size(0, 50),
+                    ),
+                    child: const Text("Calculate Fee",
+                        style: TextStyle(color: Colors.white)),
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: ElevatedButton(
+                    onPressed: saveStudent,
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.indigo.shade700,
+                      minimumSize: const Size(0, 50),
+                    ),
+                    child: const Text("Save Record",
+                        style: TextStyle(color: Colors.white)),
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+// =================== VIEW STUDENTS SCREEN ===================
+class ViewStudentsScreen extends StatefulWidget {
+  @override
+  State<ViewStudentsScreen> createState() => _ViewStudentsScreenState();
+}
+
+class _ViewStudentsScreenState extends State<ViewStudentsScreen> {
+  String search = '';
+
+  @override
+  Widget build(BuildContext context) {
+    List<Student> filtered = HostelData.students
+        .where((s) =>
+            s.name.toLowerCase().contains(search.toLowerCase()) ||
+            s.room.toLowerCase().contains(search.toLowerCase()))
+        .toList();
+
+    double totalHostelFee = filtered.fold(0, (sum, s) => sum + s.totalFee);
+
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('View Students'),
+        backgroundColor: Colors.indigo,
+      ),
+      body: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          children: [
+            TextField(
+              decoration: const InputDecoration(
+                prefixIcon: Icon(Icons.search),
+                hintText: 'Search by name or room',
+                border: OutlineInputBorder(),
+              ),
+              onChanged: (val) => setState(() => search = val),
+            ),
+            const SizedBox(height: 10),
+            Expanded(
+              child: filtered.isEmpty
+                  ? const Center(child: Text('No student records found'))
+                  : ListView.builder(
+                      itemCount: filtered.length,
+                      itemBuilder: (context, index) {
+                        final s = filtered[index];
+                        return Card(
+                          color: Colors.indigo.shade100,
+                          child: ListTile(
+                            title: Text('${s.name} (Room: ${s.room})',
+                                style: const TextStyle(
+                                    fontWeight: FontWeight.bold)),
+                            subtitle: Text(
+                                'Months: ${s.months}, Fee/Month: Rs.${s.feePerMonth}, Total: Rs.${s.totalFee.toStringAsFixed(2)}'),
+                          ),
+                        );
+                      },
+                    ),
+            ),
+            const SizedBox(height: 10),
+            Text(
+              'Total Hostel Fee (All Students): Rs.${totalHostelFee.toStringAsFixed(2)}',
+              style: const TextStyle(
+                  fontSize: 18, fontWeight: FontWeight.bold, color: Colors.indigo),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+// =================== DATA CLASSES ===================
+class Student {
+  final String name;
+  final String room;
+  final int months;
+  final double feePerMonth;
+  final double totalFee;
+
+  Student(this.name, this.room, this.months, this.feePerMonth, this.totalFee);
+}
+
+class HostelData {
+  static List<Student> students = [];
+}
