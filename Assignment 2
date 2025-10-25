@@ -1,0 +1,215 @@
+import 'package:flutter/material.dart';
+
+void main() {
+  runApp(TravelGuideApp());
+}
+
+class TravelGuideApp extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      title: 'Travel Guide App',
+      debugShowCheckedModeBanner: false,
+      home: TravelHome(),
+    );
+  }
+}
+
+class TravelHome extends StatefulWidget {
+  @override
+  State<TravelHome> createState() => _TravelHomeState();
+}
+
+class _TravelHomeState extends State<TravelHome> {
+  int currentIndex = 0;
+
+  // Screens list
+  final List<Widget> screens = [
+    HomeScreen(),
+    ListScreen(),
+    AboutScreen(),
+  ];
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: const Text("Travel Guide")),
+      body: SafeArea(child: screens[currentIndex]),
+      bottomNavigationBar: BottomNavigationBar(
+        currentIndex: currentIndex,
+        onTap: (index) {
+          setState(() {
+            currentIndex = index;
+          });
+        },
+        items: const [
+          BottomNavigationBarItem(icon: Icon(Icons.home), label: "Home"),
+          BottomNavigationBarItem(icon: Icon(Icons.list), label: "List"),
+          BottomNavigationBarItem(icon: Icon(Icons.info), label: "About"),
+        ],
+      ),
+    );
+  }
+}
+
+// ================= HOME SCREEN =================
+class HomeScreen extends StatelessWidget {
+  final TextEditingController destinationController = TextEditingController();
+
+  @override
+  Widget build(BuildContext context) {
+    return SingleChildScrollView(
+      child: Column(
+        children: [
+          // Travel image
+          Image.network(
+            'https://images.unsplash.com/photo-1507525428034-b723cf961d3e',
+            height: 200,
+            width: double.infinity,
+            fit: BoxFit.cover,
+          ),
+
+          const SizedBox(height: 10),
+
+          // Welcome message
+          Container(
+            padding: const EdgeInsets.all(10),
+            color: Colors.lightBlue.shade50,
+            child: const Text(
+              "Welcome to the Travel Guide App!",
+              style: TextStyle(fontSize: 18),
+            ),
+          ),
+
+          const SizedBox(height: 10),
+
+          // Slogan
+          const Text.rich(
+            TextSpan(
+              text: "Explore ",
+              style: TextStyle(fontSize: 20, color: Colors.black),
+              children: [
+                TextSpan(
+                    text: "the World ",
+                    style:
+                        TextStyle(color: Colors.blue, fontWeight: FontWeight.bold)),
+                TextSpan(text: "with Us!"),
+              ],
+            ),
+          ),
+
+          const SizedBox(height: 10),
+
+          // Text field
+          Padding(
+            padding: const EdgeInsets.all(10),
+            child: TextField(
+              controller: destinationController,
+              decoration: const InputDecoration(
+                labelText: "Enter destination name",
+                border: OutlineInputBorder(),
+              ),
+            ),
+          ),
+
+          // Buttons
+          ElevatedButton(
+            onPressed: () {
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                    content:
+                        Text("Searching for ${destinationController.text}...")),
+              );
+            },
+            child: const Text("Search"),
+          ),
+          TextButton(
+            onPressed: () {
+              print("Text Button pressed!");
+            },
+            child: const Text("Learn More"),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+// ================= LIST SCREEN =================
+class ListScreen extends StatelessWidget {
+  final List<String> destinations = [
+    "Paris",
+    "Tokyo",
+    "New York",
+    "Dubai",
+    "Istanbul",
+    "Sydney",
+    "Rome",
+    "London",
+    "Bangkok",
+    "Cairo",
+  ];
+
+  @override
+  Widget build(BuildContext context) {
+    return ListView.builder(
+      itemCount: destinations.length,
+      itemBuilder: (context, index) {
+        return ListTile(
+          leading: const Icon(Icons.location_on, color: Colors.blue),
+          title: Text(destinations[index]),
+          subtitle: Text("A beautiful travel destination."),
+        );
+      },
+    );
+  }
+}
+
+// ================= ABOUT SCREEN =================
+class AboutScreen extends StatelessWidget {
+  final List<String> images = [
+    'https://images.unsplash.com/photo-1505761671935-60b3a7427bad',
+    'https://images.unsplash.com/photo-1549693578-d683be217e58',
+    'https://images.unsplash.com/photo-1500530855697-b586d89ba3ee',
+    'https://images.unsplash.com/photo-1526778548025-fa2f459cd5c1',
+    'https://images.unsplash.com/photo-1503264116251-35a269479413',
+    'https://images.unsplash.com/photo-1491553895911-0055eca6402d',
+  ];
+
+  final List<String> captions = [
+    "Eiffel Tower",
+    "Great Wall of China",
+    "Taj Mahal",
+    "Colosseum",
+    "Sydney Opera House",
+    "Pyramids of Giza",
+  ];
+
+  @override
+  Widget build(BuildContext context) {
+    return GridView.builder(
+      padding: const EdgeInsets.all(10),
+      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+          crossAxisCount: 2, crossAxisSpacing: 8, mainAxisSpacing: 8),
+      itemCount: images.length,
+      itemBuilder: (context, index) {
+        return Column(
+          children: [
+            Expanded(
+              child: Image.network(
+                images[index],
+                fit: BoxFit.cover,
+                width: double.infinity,
+              ),
+            ),
+            const SizedBox(height: 4),
+            Text(
+              captions[index],
+              style: const TextStyle(fontWeight: FontWeight.bold),
+            ),
+          ],
+        );
+      },
+    );
+  }
+}
