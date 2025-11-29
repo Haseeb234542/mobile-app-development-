@@ -1,0 +1,244 @@
+import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+
+void main() {
+  runApp(MyApp());
+}
+
+class MyApp extends StatelessWidget {
+  final Color primaryColor = Colors.deepPurple;
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      debugShowCheckedModeBanner: false,
+      title: "Login/Signup Demo",
+      theme: ThemeData(
+        colorScheme: ColorScheme.fromSeed(seedColor: primaryColor),
+        useMaterial3: true,
+      ),
+      home: AuthCheck(),
+    );
+  }
+}
+
+// ------------------- CHECK LOGIN STATUS -------------------
+class AuthCheck extends StatefulWidget {
+  @override
+  _AuthCheckState createState() => _AuthCheckState();
+}
+
+class _AuthCheckState extends State<AuthCheck> {
+  bool isLoggedIn = false;
+
+  @override
+  void initState() {
+    super.initState();
+    checkLogin();
+  }
+
+  void checkLogin() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    bool? loginStatus = prefs.getBool("login");
+    setState(() {
+      isLoggedIn = loginStatus ?? false;
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return isLoggedIn ? HomeScreen() : LoginScreen();
+  }
+}
+
+// --------------------- LOGIN SCREEN ---------------------
+class LoginScreen extends StatefulWidget {
+  @override
+  _LoginScreenState createState() => _LoginScreenState();
+}
+
+class _LoginScreenState extends State<LoginScreen> {
+  final email = TextEditingController();
+  final password = TextEditingController();
+
+  Future<void> loginUser() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? savedEmail = prefs.getString("email");
+    String? savedPass = prefs.getString("password");
+
+    if (email.text == savedEmail && password.text == savedPass) {
+      await prefs.setBool("login", true);
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text("Login Successful ✔"),
+          backgroundColor: Colors.green,
+        ),
+      );
+
+      await Future.delayed(Duration(seconds: 1));
+
+      Navigator.pushReplacement(
+          context, MaterialPageRoute(builder: (_) => HomeScreen()));
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text("Invalid Credentials ❌"),
+          backgroundColor: Colors.red,
+        ),
+      );
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: Text("Login")),
+      body: Container(
+        padding: EdgeInsets.all(25),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            TextField(
+              controller: email,
+              decoration: InputDecoration(labelText: "Email"),
+            ),
+            SizedBox(height: 15),
+            TextField(
+              controller: password,
+              obscureText: true,
+              decoration: InputDecoration(labelText: "Password"),
+            ),
+            SizedBox(height: 20),
+            SizedBox(
+              width: double.infinity,
+              child: ElevatedButton(
+                  onPressed: loginUser, child: Text("Login")),
+            ),
+            TextButton(
+              onPressed: () {
+                Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (_) => SignupScreen()));
+              },
+              child: Text("Create an Account"),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+// --------------------- SIGNUP SCREEN ---------------------
+class SignupScreen extends StatefulWidget {
+  @override
+  _SignupScreenState createState() => _SignupScreenState();
+}
+
+class _SignupScreenState extends State<SignupScreen> {
+  final email = TextEditingController();
+  final password = TextEditingController();
+
+  Future<void> signupUser() async {
+    if (email.text.isEmpty || password.text.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text("Email and Password cannot be empty ❌"),
+          backgroundColor: Colors.red,
+        ),
+      );
+      return;
+    }
+
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    await prefs.setString("email", email.text);
+    await prefs.setString("password", password.text);
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text("Signup Successful ✔"),
+        backgroundColor: Colors.green,
+      ),
+    );
+
+    await Future.delayed(Duration(seconds: 1));
+
+    Navigator.pushReplacement(
+        context, MaterialPageRoute(builder: (_) => LoginScreen()));
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: Text("Sign Up")),
+      body: Container(
+        padding: EdgeInsets.all(25),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            TextField(
+              controller: email,
+              decoration: InputDecoration(labelText: "Email"),
+            ),
+            SizedBox(height: 15),
+            TextField(
+              controller: password,
+              obscureText: true,
+              decoration: InputDecoration(labelText: "Password"),
+            ),
+            SizedBox(height: 20),
+            SizedBox(
+              width: double.infinity,
+              child: ElevatedButton(
+                  onPressed: signupUser, child: Text("Create Account")),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+// --------------------- HOME SCREEN ---------------------
+class HomeScreen extends StatelessWidget {
+  Future<void> logoutUser(BuildContext context) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    await prefs.setBool("login", false);
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text("Logged Out Successfully ✔"),
+        backgroundColor: Colors.green,
+      ),
+    );
+
+    await Future.delayed(Duration(seconds: 1));
+
+    Navigator.pushReplacement(
+        context, MaterialPageRoute(builder: (_) => LoginScreen()));
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text("Home"),
+        automaticallyImplyLeading: false,
+        actions: [
+          IconButton(
+            onPressed: () => logoutUser(context),
+            icon: Icon(Icons.logout),
+          ),
+        ],
+      ),
+      body: Center(
+        child: Text(
+          "Welcome! You are logged in.",
+          style: TextStyle(fontSize: 22),
+        ),
+      ),
+    );
+  }
+}
