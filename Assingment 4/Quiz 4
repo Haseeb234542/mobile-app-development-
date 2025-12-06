@@ -1,0 +1,42 @@
+Haseeb Ahmad
+Sap id 55197
+MAD
+Assignment 4
+SmartTracker Project Report
+1. Introduction
+SmartTracker is a cross-platform mobile application developed using Flutter. The app integrates mobile
+device sensors such as GPS and Camera, interacts with a REST API for real-time data
+synchronization, and stores recent activities offline for quick access.
+2. Objectives
+- Utilize GPS to capture and display live user location.
+- Integrate device Camera for capturing activity images.
+- Sync activity logs (location, timestamp, image) with a remote REST API.
+- Provide CRUD functionality for viewing, searching, and deleting logs.
+- Store recent 5 activities offline using local storage.
+- Follow clean architecture principles.
+- Ensure responsiveness across devices.
+3. API Design
+Base URL:
+Endpoints:
+GET /activities – Fetch all logs
+GET /activities/:id – Fetch a log
+POST /activities – Add activity
+DELETE /activities/:id – Delete activity
+4. App Architecture
+- UI Layer
+- State Management (Provider)
+- Repository Layer
+- Data Layer
+5. Sensor Handling
+GPS using geolocator.
+Camera using camera package.
+6. Offline Storage
+Using Hive or SharedPreferences to store 5 recent activities.
+7. Testing Scenarios
+- API testing via Postman
+- Sensor testing (GPS, Camera)
+- Offline mode testing
+8. Conclusion
+SmartTracker fulfills all requirements of the Complex Computing Problem, integrating sensors, API, and
+offline capabilities.
+Screen Shot:
